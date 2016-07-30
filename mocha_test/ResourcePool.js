@@ -1,51 +1,49 @@
-const ResourcePool = require('../lib')
+const ResourcePool = require('../lib').ResourcePool
 const chai = require('chai')
-const should = chai.should
 const expect = chai.expect
-chai.should()
 
 describe('ResourcePool', function() {
   describe('constructor', function() {
     it('Should throw error when initiated with negative pool size', function() {
       expect(function() {
         return new ResourcePool(-1, 1, function() {})
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_POOL_SIZE_VALUE_ERROR_MSG)
     })
 
     it('Should throw error when initiated with zero pool size', function() {
       expect(function() {
         return new ResourcePool(0, 1, function() {})
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_POOL_SIZE_VALUE_ERROR_MSG)
     })
 
     it('Should throw error when initiated with float pool size value', function() {
       expect(function() {
         return new ResourcePool(3.14, 1, function() {})
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_POOL_SIZE_TYPE_ERROR_MSG)
     })
 
     it('Should throw error when initiated with negative interval value', function() {
       expect(function() {
         return new ResourcePool(1, -1, function() {})
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_INTERVAL_VALUE_ERROR_MSG)
     })
 
     it('Should throw error when initiated with zero interval value', function() {
       expect(function() {
         return new ResourcePool(1, 0, function() {})
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_INTERVAL_VALUE_ERROR_MSG)
     })
 
     it('Should throw error when initiated with float interval value', function() {
       expect(function() {
         return new ResourcePool(1, 3.14, function() {})
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_INTERVAL_VALUE_ERROR_MSG)
     })
 
     it('Should throw error when initiated without callback function', function() {
       expect(function() {
         return new ResourcePool(1, 1)
-      }).to.throw(Error)
+      }).to.throw(ResourcePool.INVALID_CALLBACK_TYPE_ERROR_MSG)
     })
   })
 
