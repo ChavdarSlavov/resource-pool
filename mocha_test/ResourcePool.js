@@ -1,49 +1,56 @@
 const ResourcePool = require('../lib').ResourcePool
+const ErrorMessages = require('../lib/ErrorMessages')
 const chai = require('chai')
 const expect = chai.expect
 
 describe('ResourcePool', function() {
   describe('constructor', function() {
+    it('Should pass when initiated with valid parameters', function(done) {
+      const pool = new ResourcePool(1, 1, function() {})
+      done()
+      return pool
+    })
+
     it('Should throw error when initiated with negative pool size', function() {
       expect(function() {
         return new ResourcePool(-1, 1, function() {})
-      }).to.throw(ResourcePool.INVALID_POOL_SIZE_VALUE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_POOL_SIZE_VALUE)
     })
 
     it('Should throw error when initiated with zero pool size', function() {
       expect(function() {
         return new ResourcePool(0, 1, function() {})
-      }).to.throw(ResourcePool.INVALID_POOL_SIZE_VALUE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_POOL_SIZE_VALUE)
     })
 
     it('Should throw error when initiated with float pool size value', function() {
       expect(function() {
         return new ResourcePool(3.14, 1, function() {})
-      }).to.throw(ResourcePool.INVALID_POOL_SIZE_TYPE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_POOL_SIZE_TYPE)
     })
 
     it('Should throw error when initiated with negative interval value', function() {
       expect(function() {
         return new ResourcePool(1, -1, function() {})
-      }).to.throw(ResourcePool.INVALID_INTERVAL_VALUE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_INTERVAL_VALUE)
     })
 
     it('Should throw error when initiated with zero interval value', function() {
       expect(function() {
         return new ResourcePool(1, 0, function() {})
-      }).to.throw(ResourcePool.INVALID_INTERVAL_VALUE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_INTERVAL_VALUE)
     })
 
     it('Should throw error when initiated with float interval value', function() {
       expect(function() {
         return new ResourcePool(1, 3.14, function() {})
-      }).to.throw(ResourcePool.INVALID_INTERVAL_VALUE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_INTERVAL_VALUE)
     })
 
     it('Should throw error when initiated without callback function', function() {
       expect(function() {
         return new ResourcePool(1, 1)
-      }).to.throw(ResourcePool.INVALID_CALLBACK_TYPE_ERROR_MSG)
+      }).to.throw(ErrorMessages.INVALID_CALLBACK_TYPE)
     })
   })
 
@@ -58,11 +65,11 @@ describe('ResourcePool', function() {
       pool.destroy()
     })
 
-    it('Should have full resource amount when initiated', function() {
+    it('Should return full resource count when initiated', function() {
       expect(pool.remaining).to.equal(1)
     })
 
-    it('Should remaining be zero when exhausted', function() {
+    it('Should return zero when there are no resources available', function() {
       pool.consume()
       expect(pool.remaining).to.equal(0)
     })
@@ -100,11 +107,11 @@ describe('ResourcePool', function() {
       pool.destroy()
     })
 
-    it('Should return true when trying to consume resources from not empty pool', function() {
+    it('Should return true when pool is not empty', function() {
       expect(pool.consume()).to.true
     })
 
-    it('Should return false when trying to consume resources from empty pool', function() {
+    it('Should return false when poop is empty', function() {
       pool.consume()
       expect(pool.consume()).to.false
     })
@@ -123,7 +130,7 @@ describe('ResourcePool', function() {
       const pool = new ResourcePool(1, 5, function() {
         const timeDiff = Date.now() - startTime
         // added bonus time, because timers are not accurate
-        expect(timeDiff).to.be.below(8)
+        expect(timeDiff).to.be.below(10)
         done()
       })
       pool.consume()
@@ -131,6 +138,15 @@ describe('ResourcePool', function() {
   })
 
   describe('#destroy()', function() {
-    // TODO: Find how to test if timeout is cleared
+    it('Should not execute callback', function(done) {
+      const pool = new ResourcePool(1, 5, function() {
+        done(new Error('Callback should not be executed'))
+      })
+      pool.consume()
+      pool.destroy()
+      setTimeout(() => {
+        done()
+      }, 10)
+    })
   })
 })
